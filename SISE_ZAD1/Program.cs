@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace SISE_ZAD1
 {
+
     internal class FifteenPuzzle
     {
-        private int[,] iNumbers;
         private int iNumberOfMoves;
         private string iMovements;
         private int iNumberOfStates;
@@ -13,7 +14,8 @@ namespace SISE_ZAD1
         private int iNumberOfMaxRecursionDepth;
         private double iComputingTime;
 
-        private void LoadBoard(string aPath)
+
+        public static int[,] LoadBoard(string aPath)
         {
 
             string[] allLines = File.ReadAllLines(aPath);
@@ -30,41 +32,22 @@ namespace SISE_ZAD1
                 }
             }
 
-            iNumbers = numbers;
+            return numbers;
         }
 
-        private void SaveResults()
-        {
-            using (StreamWriter sw = new StreamWriter("result"))
-            {
-                sw.WriteLine(iNumberOfMoves.ToString());
-                sw.Write(iMovements);
-            }
-        }
 
-        private void SaveAdditionalData()
-        {
-            using (StreamWriter sw = new StreamWriter("additionalData"))
-            {
-                sw.WriteLine(iNumberOfMoves.ToString());
-                sw.WriteLine(iNumberOfStates.ToString());
-                sw.WriteLine(iNumberOfProcessedStates.ToString());
-                sw.WriteLine(iNumberOfMaxRecursionDepth.ToString());
-                sw.WriteLine(iComputingTime.ToString().Substring(0, 5));
-            }
-        }
 
-        private bool CheckSolvability()
+        public static bool IsSolvable(int[,] aNumbers)
         {
-            int[] oneDimensionalArray = new int[iNumbers.GetLength(0) * iNumbers.GetLength(1)];
-            int zerothDimensionCount = iNumbers.GetLength(0);
-            int firstDimensionCount = iNumbers.GetLength(1);
+            int[] oneDimensionalArray = new int[aNumbers.GetLength(0) * aNumbers.GetLength(1)];
+            int zerothDimensionCount = aNumbers.GetLength(0);
+            int firstDimensionCount = aNumbers.GetLength(1);
 
             for (int i = 0; i < zerothDimensionCount; i++)
             {
                 for (int j = 0; j < firstDimensionCount; j++)
                 {
-                    oneDimensionalArray[i * firstDimensionCount + j] = iNumbers[i, j];
+                    oneDimensionalArray[i * firstDimensionCount + j] = aNumbers[i, j];
                 }
             }
 
@@ -86,7 +69,7 @@ namespace SISE_ZAD1
             {
                 for (int j = 0; j < firstDimensionCount; j++)
                 {
-                    if (iNumbers[i, j] == 0)
+                    if (aNumbers[i, j] == 0)
                     {
                         row = i;
                     }
@@ -102,7 +85,7 @@ namespace SISE_ZAD1
 
             if (zerothDimensionCount % 2 == 0)
             {
-                if((row % 2 == 0 && numberOfInversions % 2 == 1) || (row % 2 == 1 && numberOfInversions % 2 == 0))
+                if ((row % 2 == 0 && numberOfInversions % 2 == 1) || (row % 2 == 1 && numberOfInversions % 2 == 0))
                 {
                     return true;
                 }
@@ -114,9 +97,33 @@ namespace SISE_ZAD1
 
         private static void Main(string[] args)
         {
-            FifteenPuzzle fifteenPuzzle = new FifteenPuzzle();
-            fifteenPuzzle.LoadBoard("data");
-            fifteenPuzzle.CheckSolvability();
+            string[] files = Directory.GetFiles("input");
+
+            foreach(string name in files)
+            {
+                BFSSolver bFSSolver = new BFSSolver(new State(LoadBoard(name), ""), "LRUD");
+                bFSSolver.Solve();
+
+                string resultPath = name.Insert(name.Length - 16, "..\\solutions\\");
+                using (StreamWriter stream = new StreamWriter(resultPath))
+                {
+                    stream.WriteLine(bFSSolver.iSolution.iDecisions.Length);
+                    stream.WriteLine(bFSSolver.iSolution.iDecisions);
+                }
+
+                string additionalDataPath = name.Insert(name.Length - 16, "..\\additionalData\\");
+                using (StreamWriter stream = new StreamWriter(additionalDataPath))
+                {
+                    stream.WriteLine(bFSSolver.iSolutionLength);
+                    stream.WriteLine(bFSSolver.iVisitedStates);
+                    stream.WriteLine(bFSSolver.iProcessedStates);
+                    stream.WriteLine(bFSSolver.iRecursionDepth);
+                    stream.WriteLine(bFSSolver.iComputingTime);
+                }
+            }
+
+            
+
         }
     }
 }
