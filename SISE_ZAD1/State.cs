@@ -1,20 +1,123 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SISE_ZAD1
 {
     public class State
     {
-        public string iDecisions;
         private int[,] iBoard;
+        int zerothDimensionLength;
+        int firstDimensionLength;
 
-        public State(int[,] aBoard, string aPreviousDecisions)
+        public int iCurrentDepth = 1;
+        public string iDecisions;
+        public char GetLastLetter
+        {
+            get
+            {
+                return iDecisions[iDecisions.Length - 1];
+            }
+        }
+
+        public int HammingDistance
+        {
+            get
+            {
+                int zerothDimensionLength = iBoard.GetLength(0);
+                int firstDimensionLength = iBoard.GetLength(1);
+                int[] oneDimensionalArray = new int[zerothDimensionLength * firstDimensionLength];
+                int numberOfIncorrectlyPlaced = 0;
+
+                for (int j = 0; j < zerothDimensionLength; j++)
+                {
+                    for (int k = 0; k < firstDimensionLength; k++)
+                    {
+                        oneDimensionalArray[j * firstDimensionLength + k] = iBoard[j, k];
+                    }
+                }
+
+                for (int j = 0; j < zerothDimensionLength * firstDimensionLength - 1; j++)
+                {
+                    if (oneDimensionalArray[j] != j + 1 && oneDimensionalArray[j] != 0)
+                    {
+                        numberOfIncorrectlyPlaced++;
+                    }
+                }
+
+                if(oneDimensionalArray[zerothDimensionLength * firstDimensionLength - 1] != 0)
+                {
+                    numberOfIncorrectlyPlaced++;
+                }
+
+                return numberOfIncorrectlyPlaced;
+            }
+        }
+
+        public int ManhattanDistance
+        {
+            get
+            {
+                int distanceValue = 0;
+
+                int zerothDimensionLength = iBoard.GetLength(0);
+                int firstDimensionLength = iBoard.GetLength(1);
+                for (int i = 0; i < zerothDimensionLength; i++)
+                {
+                    for (int j = 0; j < firstDimensionLength; j++)
+                    {
+                        if(iBoard[i, j] != TargetBoard[i, j] && iBoard[i, j] != 0)
+                        {
+                            int coordinateX = GetValueCoordinates(iBoard[i, j]).Key;
+                            int coordinateY = GetValueCoordinates(iBoard[i, j]).Value;
+
+                            distanceValue += Math.Abs(i - coordinateX);
+                            distanceValue += Math.Abs(j - coordinateY);
+                        }
+                    }
+                }
+
+                return distanceValue;
+            }
+        }
+
+        KeyValuePair<int, int> GetValueCoordinates(int aValue)
+        {
+
+            for (int i = 0; i < zerothDimensionLength; i++)
+            {
+                for (int j = 0; j < firstDimensionLength; j++)
+                {
+                    if (iBoard[i, j] == aValue)
+                    {
+                        return new KeyValuePair<int, int>(i, j);
+                    }
+                }
+            }
+
+            return new KeyValuePair<int, int>(0, 0);
+        }
+
+        int[,] TargetBoard;
+
+        public State(int[,] aBoard, string aPreviousDecisions, int aNewDepth)
         {
             iBoard = aBoard;
+            zerothDimensionLength = iBoard.GetLength(0);
+            firstDimensionLength = iBoard.GetLength(1);
+
+            TargetBoard = new int[zerothDimensionLength, firstDimensionLength];
+            for (int i = 0; i < zerothDimensionLength; i++)
+            {
+                for(int j = 0; j < firstDimensionLength; j++)
+                {
+                    TargetBoard[i, j] = i * zerothDimensionLength + j + 1;
+                }
+            }
+            TargetBoard[zerothDimensionLength - 1, firstDimensionLength - 1] = 0;
+
             iDecisions = aPreviousDecisions;
+            iCurrentDepth = aNewDepth;
+
         }
 
         public Tuple<int, int> FindEmptyCell()
@@ -40,6 +143,7 @@ namespace SISE_ZAD1
             Tuple<int, int> zeroCoordinates = FindEmptyCell();
             int[,] toReturn = (int[,])iBoard.Clone();
             string decision = (string)iDecisions.Clone();
+            int currentDepth = iCurrentDepth;
 
             switch (direction)
             {
@@ -50,6 +154,7 @@ namespace SISE_ZAD1
                             toReturn[zeroCoordinates.Item1, zeroCoordinates.Item2] = toReturn[zeroCoordinates.Item1, zeroCoordinates.Item2 - 1];
                             toReturn[zeroCoordinates.Item1, zeroCoordinates.Item2 - 1] = 0;
                             decision += "L";
+                            currentDepth += 1;
                             break;
                         }
                         toReturn = null;
@@ -62,6 +167,7 @@ namespace SISE_ZAD1
                             toReturn[zeroCoordinates.Item1, zeroCoordinates.Item2] = toReturn[zeroCoordinates.Item1, zeroCoordinates.Item2 + 1];
                             toReturn[zeroCoordinates.Item1, zeroCoordinates.Item2 + 1] = 0;
                             decision += "R";
+                            currentDepth += 1;
                             break;
                         }
                         toReturn = null;
@@ -74,6 +180,7 @@ namespace SISE_ZAD1
                             toReturn[zeroCoordinates.Item1, zeroCoordinates.Item2] = toReturn[zeroCoordinates.Item1 - 1, zeroCoordinates.Item2];
                             toReturn[zeroCoordinates.Item1 - 1, zeroCoordinates.Item2] = 0;
                             decision += "U";
+                            currentDepth += 1;
                             break;
                         }
                         toReturn = null;
@@ -86,6 +193,7 @@ namespace SISE_ZAD1
                             toReturn[zeroCoordinates.Item1, zeroCoordinates.Item2] = toReturn[zeroCoordinates.Item1 + 1, zeroCoordinates.Item2];
                             toReturn[zeroCoordinates.Item1 + 1, zeroCoordinates.Item2] = 0;
                             decision += "D";
+                            currentDepth += 1;
                             break;
                         }
                         toReturn = null;
@@ -103,7 +211,7 @@ namespace SISE_ZAD1
                 return null;
             }
 
-            return new State(toReturn, decision);
+            return new State(toReturn, decision, currentDepth);
         }
 
         public int GetNumberOfIncorrect()
@@ -165,5 +273,77 @@ namespace SISE_ZAD1
         {
             return base.GetHashCode();
         }
+        public void PrintCurrentBoard()
+        {
+            Console.WriteLine("===================================");
+            for (int j = 0; j < iBoard.GetLength(0); j++)
+            {
+                for (int k = 0; k < iBoard.GetLength(1); k++)
+                {
+                    Console.Write(iBoard[j, k] + "\t");
+                }
+                Console.Write("\n");
+            }
+            Console.WriteLine("===================================");
+
+        }
     };
+
+
+    public class ByCurrentDepth : IComparer<State>
+    {
+        public int Compare(State x, State y)
+        {
+            if (x.iCurrentDepth == y.iCurrentDepth)
+            {
+                return 0;
+            }
+            else if (x.iCurrentDepth > y.iCurrentDepth)
+            {
+                return 1;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+    }
+
+    public class ByHammingDistance : IComparer<State>
+    {
+        public int Compare(State x, State y)
+        {
+            if (x.HammingDistance == y.HammingDistance)
+            {
+                return 0;
+            }
+            else if (x.HammingDistance > y.HammingDistance)
+            {
+                return 1;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+    }
+
+    public class ByManhattanDistance : IComparer<State>
+    {
+        public int Compare(State x, State y)
+        {
+            if (x.ManhattanDistance == y.ManhattanDistance)
+            {
+                return 0;
+            }
+            else if (x.ManhattanDistance > y.ManhattanDistance)
+            {
+                return 1;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+    }
 }

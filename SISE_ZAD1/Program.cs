@@ -97,29 +97,22 @@ namespace SISE_ZAD1
 
         private static void Main(string[] args)
         {
-            string[] files = Directory.GetFiles("input");
+            #region Parse
+            #endregion
 
+            string[] files = Directory.GetFiles("input");
+            int it = 0;
             foreach(string name in files)
             {
-                BFSSolver bFSSolver = new BFSSolver(new State(LoadBoard(name), ""), "LRUD");
-                bFSSolver.Solve();
-
+                BFSSolver aStarSolver = new BFSSolver(new State(LoadBoard(name), "L", 1), "UDRL");
+                aStarSolver.Solve();
+                aStarSolver.iSolution.PrintCurrentBoard();
+                Console.WriteLine(++it);
                 string resultPath = name.Insert(name.Length - 16, "..\\solutions\\");
-                using (StreamWriter stream = new StreamWriter(resultPath))
-                {
-                    stream.WriteLine(bFSSolver.iSolution.iDecisions.Length);
-                    stream.WriteLine(bFSSolver.iSolution.iDecisions);
-                }
-
                 string additionalDataPath = name.Insert(name.Length - 16, "..\\additionalData\\");
-                using (StreamWriter stream = new StreamWriter(additionalDataPath))
-                {
-                    stream.WriteLine(bFSSolver.iSolutionLength);
-                    stream.WriteLine(bFSSolver.iVisitedStates);
-                    stream.WriteLine(bFSSolver.iProcessedStates);
-                    stream.WriteLine(bFSSolver.iRecursionDepth);
-                    stream.WriteLine(bFSSolver.iComputingTime);
-                }
+
+                aStarSolver.PrintData(resultPath, additionalDataPath);
+
             }
 
             

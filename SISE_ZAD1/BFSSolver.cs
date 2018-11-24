@@ -1,40 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SISE_ZAD1
 {
-    class BFSSolver
+    class BFSSolver : Solver
     {
-        public State iState;
-        public State iSolution;
+
         public string iOrder;
 
         #region AdditionalData
 
-        public int iSolutionLength = 0;
-        public int iProcessedStates = 0;
-        public int iVisitedStates = 0;
-        public int iRecursionDepth = 0;
-        public double iComputingTime = 0;
         #endregion
 
         public BFSSolver(State aState, string aOrder)
         {
-            iState = aState;
+            base.iState = aState;
             iOrder = aOrder;
         }
 
-        public void Solve()
+        public override void Solve()
         {
             State initialState = iState;
             HashSet<State> opened = new HashSet<State>();
             HashSet<State> closed = new HashSet<State>();
 
-            var start = Process.GetCurrentProcess().TotalProcessorTime;
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
 
             opened.Add(initialState);
             bool isDone = false;
@@ -86,8 +78,9 @@ namespace SISE_ZAD1
             iRecursionDepth = recursion;
             iProcessedStates = closed.Count;
             iVisitedStates = closed.Count + opened.Count;
-            var end = Process.GetCurrentProcess().TotalProcessorTime;
-            iComputingTime = Math.Round((end - start).TotalMilliseconds, 3);
+            timer.Stop();
+            
+            iComputingTime = Math.Round((1000.0 * timer.ElapsedTicks / Stopwatch.Frequency), 3);
         }
     }
 }
