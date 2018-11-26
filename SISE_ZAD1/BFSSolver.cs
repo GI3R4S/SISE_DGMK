@@ -40,24 +40,23 @@ namespace SISE_ZAD1
 
                 for (int h = 0; h < 4; h++)
                 {
-                    List<State> currentLetterItemList = currentLevel.Where(p => p.GetLastLetter == iOrder[h]).ToList();
-                    for (int i = 0; i < currentLetterItemList.Count; i++)
+                    List<State> currentState = currentLevel.Where(p => p.GetLastLetter == iOrder[h]).ToList();
+                    for (int i = 0; i < currentState.Count; i++)
                     {
-                        if (currentLetterItemList[i].GetNumberOfIncorrect() == 0)
+                        if (currentState[i].GetNumberOfIncorrect() == 0)
                         {
-                            iSolution = currentLetterItemList[i];
-                            iSolutionLength = iSolution.iDecisions.Length - 1;
+                            iDecisions = currentState[i].iDecisions.Substring(1, currentState[i].iDecisions.Length - 1);
                             isDone = true;
                             break;
                         }
                         else
                         {
-                            closed.Add(currentLetterItemList[i]);
-                            opened.Remove(currentLetterItemList[i]);
+                            closed.Add(currentState[i]);
+                            opened.Remove(currentState[i]);
                         }
                         for (int j = 0; j < 4; j++)
                         {
-                            State temporaryState = currentLetterItemList[i].GetOptionalState(iOrder[j]);
+                            State temporaryState = currentState[i].GetOptionalState(iOrder[j]);
                             if (temporaryState != null && !closed.Contains(temporaryState))
                             {
                                 opened.Add(temporaryState);

@@ -13,16 +13,16 @@ namespace SISE_ZAD1
         {
             iState = aState;
             iOrder = aOrder;
+            iOrder = iOrder.ToUpper();
         }
 
         public override void Solve()
         {
             State initialState = iState;
-            ByCurrentDepth comparer = new ByCurrentDepth(iOrder);
-            SortedSet<State> opened = new SortedSet<State>(comparer);
+            Stack<State> opened = new Stack<State>();
             HashSet<State> closed = new HashSet<State>();
 
-            opened.Add(initialState);
+            opened.Push(initialState);
             bool isDone = false;
 
             Stopwatch timer = new Stopwatch();
@@ -30,35 +30,31 @@ namespace SISE_ZAD1
 
             do
             {
-                State currentMax = opened.Max;
+                State currentState = opened.Pop();
+                closed.Add(currentState);
 
-                if (currentMax.GetNumberOfIncorrect() == 0)
+                if (currentState.GetNumberOfIncorrect() == 0)
                 {
                     isDone = true;
-                    iSolution = currentMax;
-                    iSolutionLength = iSolution.iDecisions.Length -1;
+                    iDecisions = currentState.iDecisions.Substring(1, currentState.iDecisions.Length - 1);
                     break;
                 }
                 else
                 {
-                    //if (currentMax.iCurrentDepth == 64)
-                    //{
-                    //    closed.Add(currentMax);
-                    //    opened.Remove(currentMax);
-                    //}
-                    //else
+                    if (currentState.iCurrentDepth == 64)
                     {
-                        for (int i = 0; i < 4; i++)
+                        continue;
+                    }
+                    else
+                    {
+                        for (int i = 3; i >= 0; i--)
                         {
-                            State optionalState = currentMax.GetOptionalState(iOrder[i]);
+                            State optionalState = currentState.GetOptionalState(iOrder[i]);
                             if (optionalState != null && !closed.Contains(optionalState))
                             {
-                                opened.Add(optionalState);
+                                opened.Push(optionalState);
                             }
                         }
-
-                        opened.Remove(currentMax);
-                        closed.Add(currentMax);
                     }
                 }
 

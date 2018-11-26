@@ -29,27 +29,26 @@ namespace SISE_ZAD1
 
             do
             {
-                State bestMatch = null;
+                State currentState = null;
 
                 if (iHeurestic == "hamm")
                 {
-                    bestMatch = opened.OrderBy(p => p.HammingHeurestic).First();
+                    currentState = opened.OrderBy(p => p.HammingHeurestic).First();
                 }
 
                 else if (iHeurestic == "manh")
                 {
-                    bestMatch = opened.OrderBy(p => p.ManhattanLinearConflictHeurestic).First();
+                    currentState = opened.OrderBy(p => p.ManhattanLinearConflictHeurestic).First();
                 }
 
                 else if (iHeurestic == "manhlc")
                 {
-                    bestMatch = opened.OrderBy(p => p.ManhattanLinearConflictHeurestic).First();
+                    currentState = opened.OrderBy(p => p.ManhattanLinearConflictHeurestic).First();
                 }
 
-                if (bestMatch.GetNumberOfIncorrect() == 0)
+                if (currentState.GetNumberOfIncorrect() == 0)
                 {
-                    iSolution = bestMatch;
-                    iSolutionLength = iSolution.iDecisions.Length - 1;
+                    iDecisions = currentState.iDecisions.Substring(1, currentState.iDecisions.Length - 1);
                     isDone = true;
                     break;
                 }
@@ -58,14 +57,14 @@ namespace SISE_ZAD1
                     string order = "LRUD";
                     for (int i = 0; i < 4; i++)
                     {
-                        State optionalState = bestMatch.GetOptionalState(order[i]);
+                        State optionalState = currentState.GetOptionalState(order[i]);
                         if (optionalState != null && !closed.Contains(optionalState))
                         {
                             opened.Add(optionalState);
                         }
                     }
-                    closed.Add(bestMatch);
-                    opened.Remove(bestMatch);
+                    closed.Add(currentState);
+                    opened.Remove(currentState);
                 }
 
             } while (isDone == false);

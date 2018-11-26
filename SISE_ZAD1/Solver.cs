@@ -5,8 +5,8 @@ namespace SISE_ZAD1
     internal abstract class Solver
     {
         public State iState;
-        public State iSolution;
-        public int iSolutionLength = 0;
+
+        public string iDecisions= "";
         public int iProcessedStates = 0;
         public int iVisitedStates = 0;
         public int iRecursionDepth = 0;
@@ -18,12 +18,12 @@ namespace SISE_ZAD1
         {
             using (StreamWriter stream = new StreamWriter(aSolutionPath))
             {
-                stream.WriteLine(iSolution.iDecisions.Length);
-                stream.WriteLine(iSolution.iDecisions.Substring(1, iSolution.iDecisions.Length - 1));
+                stream.WriteLine(iDecisions.Length);
+                stream.WriteLine(iDecisions);
             }
             using (StreamWriter stream = new StreamWriter(aDataPath))
             {
-                stream.WriteLine(iSolutionLength);
+                stream.WriteLine(iDecisions.Length);
                 stream.WriteLine(iVisitedStates);
                 stream.WriteLine(iProcessedStates);
                 stream.WriteLine(iRecursionDepth);

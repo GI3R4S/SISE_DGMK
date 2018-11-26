@@ -8,8 +8,6 @@ namespace SISE_ZAD1
     internal class FifteenPuzzle
     {
         public static Dictionary<int, KeyValuePair<int, int>> TargetState;
-        public static int[,] rows;
-        public static int[,] collumns;
 
         public static int[,] LoadBoard(string aPath)
         {
@@ -114,17 +112,17 @@ namespace SISE_ZAD1
             {
                 case "bfs":
                     {
-                        solver = new BFSSolver(new State(initialBoard, "L", 1), args[1]);
+                        solver = new BFSSolver(new State(initialBoard, "L", 0), args[1]);
                         break;
                     }
                 case "dfs":
                     {
-                        solver = new DFSSolver(new State(initialBoard, "L", 1), args[1]);
+                        solver = new DFSSolver(new State(initialBoard, "L", 0), args[1]);
                         break;
                     }
                 case "astr":
                     {
-                        solver = new AStarSolver(new State(initialBoard, "L", 1), args[1]);
+                        solver = new AStarSolver(new State(initialBoard, "L", 0), args[1]);
                         break;
                     }
                 default:
