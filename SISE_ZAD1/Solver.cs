@@ -19,7 +19,7 @@ namespace SISE_ZAD1
             using (StreamWriter stream = new StreamWriter(aSolutionPath))
             {
                 stream.WriteLine(iSolution.iDecisions.Length);
-                stream.WriteLine(iSolution.iDecisions);
+                stream.WriteLine(iSolution.iDecisions.Substring(1, iSolution.iDecisions.Length - 1));
             }
             using (StreamWriter stream = new StreamWriter(aDataPath))
             {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace SISE_ZAD1
 {
@@ -17,6 +18,7 @@ namespace SISE_ZAD1
         {
             base.iState = aState;
             iOrder = aOrder;
+            iOrder = iOrder.ToUpper();
         }
 
         public override void Solve()
@@ -27,55 +29,48 @@ namespace SISE_ZAD1
 
             Stopwatch timer = new Stopwatch();
             timer.Start();
-
             opened.Add(initialState);
             bool isDone = false;
-            int recursion = 1;
+            int iteration = 1;
+
             do
             {
-                List<State> newlyCreated = new List<State>();
-                List<State> toRemove = new List<State>();
+                List<State> currentLevel = new List<State>();
+                currentLevel = opened.Where(p => p.iCurrentDepth == iteration).ToList();
 
-                foreach (State state in opened)
+                for (int h = 0; h < 4; h++)
                 {
-                    if (state.GetNumberOfIncorrect() == 0)
+                    List<State> currentLetterItemList = currentLevel.Where(p => p.GetLastLetter == iOrder[h]).ToList();
+                    for (int i = 0; i < currentLetterItemList.Count; i++)
                     {
-                        isDone = true;
-                        iSolution = state;
-                        iSolutionLength = state.iDecisions.Length;
-
-                        break;
-                    }
-                    for (int i = 0; i < 4; i++)
-                    {
-                        State optionalState = state.GetOptionalState(iOrder[i]);
-                        if (!closed.Contains(optionalState) && optionalState != null)
+                        if (currentLetterItemList[i].GetNumberOfIncorrect() == 0)
                         {
-                            newlyCreated.Add(optionalState);
+                            iSolution = currentLetterItemList[i];
+                            iSolutionLength = iSolution.iDecisions.Length - 1;
+                            isDone = true;
+                            break;
+                        }
+                        else
+                        {
+                            closed.Add(currentLetterItemList[i]);
+                            opened.Remove(currentLetterItemList[i]);
+                        }
+                        for (int j = 0; j < 4; j++)
+                        {
+                            State temporaryState = currentLetterItemList[i].GetOptionalState(iOrder[j]);
+                            if (temporaryState != null && !closed.Contains(temporaryState))
+                            {
+                                opened.Add(temporaryState);
+                            }
                         }
                     }
-                    closed.Add(state);
-                    toRemove.Add(state);
                 }
+                iteration++;
+            } while (!isDone);
 
-                recursion++;
 
-                foreach (State stat in newlyCreated)
-                {
-                    opened.Add(stat);
-                }
+            iRecursionDepth = opened.Max(p => p.iCurrentDepth) > closed.Max(p => p.iCurrentDepth) ? opened.Max(p => p.iCurrentDepth) : closed.Max(p => p.iCurrentDepth);
 
-                foreach (State stat in toRemove)
-                {
-                    opened.Remove(stat);
-                }
-
-                newlyCreated.Clear();
-                toRemove.Clear();
-
-            } while (isDone == false);
-
-            iRecursionDepth = recursion;
             iProcessedStates = closed.Count;
             iVisitedStates = closed.Count + opened.Count;
             timer.Stop();

@@ -5,84 +5,78 @@ using System.Linq;
 
 namespace SISE_ZAD1
 {
-    internal class AStarSolver
+    internal class AStarSolver : Solver
     {
-        public State iState;
-        public State iSolution;
-        public string iOrder;
-        #region AdditionalData
+        public string iHeurestic;
 
-        public int iSolutionLength = 0;
-        public int iProcessedStates = 0;
-        public int iVisitedStates = 0;
-        public int iRecursionDepth = 0;
-        public double iComputingTime = 0;
-        #endregion
-
-        public AStarSolver(State aState, string aOrder)
+        public AStarSolver(State aState, string aHeurestic)
         {
             iState = aState;
-            iOrder = aOrder;
+            iHeurestic = aHeurestic;
         }
 
-        public void Solve()
+        public override void Solve()
         {
             State initialState = iState;
-            List<State> opened = new List<State>();
+            HashSet<State> opened = new HashSet<State>();
             HashSet<State> closed = new HashSet<State>();
-            string order = "LRUD";
-            var start = Process.GetCurrentProcess().TotalProcessorTime;
+
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
 
             opened.Add(initialState);
             bool isDone = false;
-            ByManhattanDistance byHammDistance = new ByManhattanDistance();
 
             do
             {
-                if ((Process.GetCurrentProcess().TotalProcessorTime - start).Seconds >= 10)
-                    break;
+                State bestMatch = null;
 
-                opened.Sort(byHammDistance);
-                State currentMax = opened[0];
-                
-                if (currentMax.GetNumberOfIncorrect() == 0)
+                if (iHeurestic == "hamm")
                 {
+                    bestMatch = opened.OrderBy(p => p.HammingHeurestic).First();
+                }
+
+                else if (iHeurestic == "manh")
+                {
+                    bestMatch = opened.OrderBy(p => p.ManhattanLinearConflictHeurestic).First();
+                }
+
+                else if (iHeurestic == "manhlc")
+                {
+                    bestMatch = opened.OrderBy(p => p.ManhattanLinearConflictHeurestic).First();
+                }
+
+                if (bestMatch.GetNumberOfIncorrect() == 0)
+                {
+                    iSolution = bestMatch;
+                    iSolutionLength = iSolution.iDecisions.Length - 1;
                     isDone = true;
-                    iSolution = currentMax;
                     break;
                 }
                 else
                 {
-
+                    string order = "LRUD";
                     for (int i = 0; i < 4; i++)
                     {
-                        State optionalState = currentMax.GetOptionalState(order[i]);
+                        State optionalState = bestMatch.GetOptionalState(order[i]);
                         if (optionalState != null && !closed.Contains(optionalState))
                         {
                             opened.Add(optionalState);
                         }
                     }
-
-                    opened.Remove(currentMax);
-                    closed.Add(currentMax);
-
+                    closed.Add(bestMatch);
+                    opened.Remove(bestMatch);
                 }
 
             } while (isDone == false);
 
-            if (!isDone)
-            {
-                iSolution = new State(new int[,] { {0, 0, 0, 0}, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, }, "", 0);
-                return;
-            }
-            int maxRecursionClosed = closed.Max(p => p.iCurrentDepth);
-            int maxRecursionOpened = opened.Max(p => p.iCurrentDepth);
+            iRecursionDepth = opened.Max(p => p.iCurrentDepth) > closed.Max(p => p.iCurrentDepth) ? opened.Max(p => p.iCurrentDepth) : closed.Max(p => p.iCurrentDepth);
 
-            iRecursionDepth = maxRecursionClosed > maxRecursionOpened ? maxRecursionClosed : maxRecursionOpened;
             iProcessedStates = closed.Count;
             iVisitedStates = closed.Count + opened.Count;
-            var end = Process.GetCurrentProcess().TotalProcessorTime;
-            iComputingTime = Math.Round((end - start).TotalMilliseconds, 3);
+            timer.Stop();
+
+            iComputingTime = Math.Round((1000.0 * timer.ElapsedTicks / Stopwatch.Frequency), 3);
         }
     }
 }

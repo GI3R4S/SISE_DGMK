@@ -19,12 +19,10 @@ namespace SISE_ZAD1
             }
         }
 
-        public int HammingDistance
+        public int HammingHeurestic
         {
             get
             {
-                int zerothDimensionLength = iBoard.GetLength(0);
-                int firstDimensionLength = iBoard.GetLength(1);
                 int[] oneDimensionalArray = new int[zerothDimensionLength * firstDimensionLength];
                 int numberOfIncorrectlyPlaced = 0;
 
@@ -49,26 +47,22 @@ namespace SISE_ZAD1
                     numberOfIncorrectlyPlaced++;
                 }
 
-                return numberOfIncorrectlyPlaced;
+                return numberOfIncorrectlyPlaced + iCurrentDepth;
             }
         }
-
-        public int ManhattanDistance
+        public int Dijkstra
         {
             get
             {
                 int distanceValue = 0;
-
-                int zerothDimensionLength = iBoard.GetLength(0);
-                int firstDimensionLength = iBoard.GetLength(1);
                 for (int i = 0; i < zerothDimensionLength; i++)
                 {
                     for (int j = 0; j < firstDimensionLength; j++)
                     {
-                        if(iBoard[i, j] != TargetBoard[i, j] && iBoard[i, j] != 0)
+                        if (iBoard[i, j] != TargetBoard[i, j] && iBoard[i, j] != 0)
                         {
-                            int coordinateX = GetValueCoordinates(iBoard[i, j]).Key;
-                            int coordinateY = GetValueCoordinates(iBoard[i, j]).Value;
+                            int coordinateX = FifteenPuzzle.TargetState[iBoard[i, j]].Key;
+                            int coordinateY = FifteenPuzzle.TargetState[iBoard[i, j]].Value;
 
                             distanceValue += Math.Abs(i - coordinateX);
                             distanceValue += Math.Abs(j - coordinateY);
@@ -79,22 +73,51 @@ namespace SISE_ZAD1
                 return distanceValue;
             }
         }
-
-        KeyValuePair<int, int> GetValueCoordinates(int aValue)
+        public int ManhattanHeurestic
         {
-
-            for (int i = 0; i < zerothDimensionLength; i++)
+            get
             {
-                for (int j = 0; j < firstDimensionLength; j++)
-                {
-                    if (iBoard[i, j] == aValue)
-                    {
-                        return new KeyValuePair<int, int>(i, j);
-                    }
-                }
+                return Dijkstra + iCurrentDepth;
             }
+        }
 
-            return new KeyValuePair<int, int>(0, 0);
+        public int ManhattanLinearConflictHeurestic
+        {
+            get
+            {
+                int totalNumOfConflicts = 0;
+
+                for (int i = 0; i < zerothDimensionLength; i++)
+                {
+                    int numOfConflicts = 0;
+                    for (int j = 0; j < firstDimensionLength; j++)
+                    {
+                        if(iBoard[i, j] != TargetBoard[i, j] && iBoard[i, j] != 0)
+                        {
+                            if (FifteenPuzzle.TargetState[iBoard[i, j]].Key == i)
+                                numOfConflicts++;
+                        }
+                    }
+                    if (numOfConflicts >= 2)
+                        totalNumOfConflicts += numOfConflicts;
+                }
+
+                for (int i = 0; i < zerothDimensionLength; i++)
+                {
+                    int numOfConflicts = 0;
+                    for (int j = 0; j < firstDimensionLength; j++)
+                    {
+                        if (iBoard[j, i] != TargetBoard[j, i] && iBoard[j, i] != 0)
+                        {
+                            if (FifteenPuzzle.TargetState[iBoard[j, i]].Value == j)
+                                numOfConflicts++;
+                        }
+                    }
+                    if (numOfConflicts >= 2)
+                        totalNumOfConflicts += numOfConflicts;
+                }
+                return ManhattanHeurestic + totalNumOfConflicts;
+            }
         }
 
         int[,] TargetBoard;
@@ -292,51 +315,36 @@ namespace SISE_ZAD1
 
     public class ByCurrentDepth : IComparer<State>
     {
+        string iOrder;
+        
+        public ByCurrentDepth(string aNewOrder)
+        {
+            iOrder = aNewOrder;
+        }
         public int Compare(State x, State y)
         {
             if (x.iCurrentDepth == y.iCurrentDepth)
             {
-                return 0;
+                char xCurrentPosition = x.GetLastLetter;
+                char yCurrentPosition = y.GetLastLetter;
+                int xIndex = 0;
+                int yIndex = 0;
+                for(int i = 0; i < iOrder.Length; i++)
+                {
+                    if (xCurrentPosition == iOrder[i])
+                        xIndex = i;
+                    if (yCurrentPosition == iOrder[i])
+                        yIndex = i;
+                }
+                if (xIndex == yIndex)
+                    return 0;
+                else if (xIndex < yIndex)
+                    return 1;
+                else
+                    return -1;
+
             }
             else if (x.iCurrentDepth > y.iCurrentDepth)
-            {
-                return 1;
-            }
-            else
-            {
-                return -1;
-            }
-        }
-    }
-
-    public class ByHammingDistance : IComparer<State>
-    {
-        public int Compare(State x, State y)
-        {
-            if (x.HammingDistance == y.HammingDistance)
-            {
-                return 0;
-            }
-            else if (x.HammingDistance > y.HammingDistance)
-            {
-                return 1;
-            }
-            else
-            {
-                return -1;
-            }
-        }
-    }
-
-    public class ByManhattanDistance : IComparer<State>
-    {
-        public int Compare(State x, State y)
-        {
-            if (x.ManhattanDistance == y.ManhattanDistance)
-            {
-                return 0;
-            }
-            else if (x.ManhattanDistance > y.ManhattanDistance)
             {
                 return 1;
             }

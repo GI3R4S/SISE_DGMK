@@ -7,13 +7,9 @@ namespace SISE_ZAD1
 
     internal class FifteenPuzzle
     {
-        private int iNumberOfMoves;
-        private string iMovements;
-        private int iNumberOfStates;
-        private int iNumberOfProcessedStates;
-        private int iNumberOfMaxRecursionDepth;
-        private double iComputingTime;
-
+        public static Dictionary<int, KeyValuePair<int, int>> TargetState;
+        public static int[,] rows;
+        public static int[,] collumns;
 
         public static int[,] LoadBoard(string aPath)
         {
@@ -97,26 +93,62 @@ namespace SISE_ZAD1
 
         private static void Main(string[] args)
         {
-            #region Parse
-            #endregion
-
-            string[] files = Directory.GetFiles("input");
-            int it = 0;
-            foreach(string name in files)
+            if (args.Length != 5)
             {
-                BFSSolver aStarSolver = new BFSSolver(new State(LoadBoard(name), "L", 1), "UDRL");
-                aStarSolver.Solve();
-                aStarSolver.iSolution.PrintCurrentBoard();
-                Console.WriteLine(++it);
-                string resultPath = name.Insert(name.Length - 16, "..\\solutions\\");
-                string additionalDataPath = name.Insert(name.Length - 16, "..\\additionalData\\");
-
-                aStarSolver.PrintData(resultPath, additionalDataPath);
-
+                return;
             }
 
-            
+            Solver solver = null;
 
+
+            if (!File.Exists(args[2]))
+            {
+                return;
+            }
+
+            int[,] initialBoard = LoadBoard(args[2]);
+            if (initialBoard == null)
+                return;
+
+            switch (args[0])
+            {
+                case "bfs":
+                    {
+                        solver = new BFSSolver(new State(initialBoard, "L", 1), args[1]);
+                        break;
+                    }
+                case "dfs":
+                    {
+                        solver = new DFSSolver(new State(initialBoard, "L", 1), args[1]);
+                        break;
+                    }
+                case "astr":
+                    {
+                        solver = new AStarSolver(new State(initialBoard, "L", 1), args[1]);
+                        break;
+                    }
+                default:
+                    {
+                        return;
+                    }
+            }
+
+
+            TargetState = new Dictionary<int, KeyValuePair<int, int>>();
+            for (int i = 0; i < initialBoard.GetLength(0); i++)
+            {
+                for (int j = 0; j < initialBoard.GetLength(1); j++)
+                {
+                    int value = i * initialBoard.GetLength(0) + j;
+                    if (i * initialBoard.GetLength(0) + j < initialBoard.GetLength(0) * initialBoard.GetLength(1))
+                    {
+                        TargetState.Add(value + 1, new KeyValuePair<int, int>(i, j));
+                    }
+                }
+            }
+
+            solver.Solve();
+            solver.PrintData(args[3], args[4]);
         }
     }
 }
