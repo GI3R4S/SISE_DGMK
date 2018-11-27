@@ -12,8 +12,7 @@ namespace SISE_ZAD1
         public DFSSolver(State aState, string aOrder)
         {
             iState = aState;
-            iOrder = aOrder;
-            iOrder = iOrder.ToUpper();
+            iOrder = aOrder.ToUpper();
         }
 
         public override void Solve()

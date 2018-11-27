@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace SISE_ZAD1
 {
@@ -10,15 +9,10 @@ namespace SISE_ZAD1
 
         public string iOrder;
 
-        #region AdditionalData
-
-        #endregion
-
         public BFSSolver(State aState, string aOrder)
         {
             base.iState = aState;
-            iOrder = aOrder;
-            iOrder = iOrder.ToUpper();
+            iOrder = aOrder.ToUpper();
         }
 
         public override void Solve()
@@ -31,7 +25,6 @@ namespace SISE_ZAD1
             
             opened.Enqueue(initialState);
             bool isDone = false;
-            int iteration = 1;
 
             Stopwatch timer = new Stopwatch();
             timer.Start();
@@ -58,8 +51,6 @@ namespace SISE_ZAD1
                         }
                     }
                 }
-
-                iteration++;
             } while (!isDone);
 
             iProcessedStates = closed.Count;

@@ -38,9 +38,6 @@ namespace SISE_ZAD1
             HashSet<State> opened = new HashSet<State>();
             HashSet<State> closed = new HashSet<State>();
 
-
-
-
             if (iHeurestic == "hamm")
             {
                 sortingMethod = SortByHamming;
@@ -51,7 +48,7 @@ namespace SISE_ZAD1
                 sortingMethod = SortByManhattan;
             }
 
-            else if (iHeurestic == "manhlc")
+            else if (iHeurestic == "mixd")
             {
                 sortingMethod = SortByMixed;
             }
@@ -61,6 +58,7 @@ namespace SISE_ZAD1
             bool isDone = false;
             Stopwatch timer = new Stopwatch();
 
+            string order = "LRUD";
 
             timer.Start();
             do
@@ -77,7 +75,6 @@ namespace SISE_ZAD1
                 }
                 else
                 {
-                    string order = "LRUD";
                     for (int i = 0; i < 4; i++)
                     {
                         State optionalState = currentState.GetOptionalState(order[i]);

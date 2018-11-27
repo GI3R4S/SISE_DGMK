@@ -81,45 +81,6 @@ namespace SISE_ZAD1
             }
         }
 
-        public int ManhattanLinearConflictHeurestic
-        {
-            get
-            {
-                int totalNumOfConflicts = 0;
-
-                for (int i = 0; i < zerothDimensionLength; i++)
-                {
-                    int numOfConflicts = 0;
-                    for (int j = 0; j < firstDimensionLength; j++)
-                    {
-                        if(iBoard[i, j] != TargetBoard[i, j] && iBoard[i, j] != 0)
-                        {
-                            if (FifteenPuzzle.TargetState[iBoard[i, j]].Key == i)
-                                numOfConflicts++;
-                        }
-                    }
-                    if (numOfConflicts >= 2)
-                        totalNumOfConflicts += numOfConflicts;
-                }
-
-                for (int i = 0; i < zerothDimensionLength; i++)
-                {
-                    int numOfConflicts = 0;
-                    for (int j = 0; j < firstDimensionLength; j++)
-                    {
-                        if (iBoard[j, i] != TargetBoard[j, i] && iBoard[j, i] != 0)
-                        {
-                            if (FifteenPuzzle.TargetState[iBoard[j, i]].Value == j)
-                                numOfConflicts++;
-                        }
-                    }
-                    if (numOfConflicts >= 2)
-                        totalNumOfConflicts += numOfConflicts;
-                }
-                return ManhattanHeurestic + totalNumOfConflicts;
-            }
-        }
-
         public int MixedHeurestic
         {
             get

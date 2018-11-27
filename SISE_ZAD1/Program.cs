@@ -29,66 +29,6 @@ namespace SISE_ZAD1
             return numbers;
         }
 
-
-
-        public static bool IsSolvable(int[,] aNumbers)
-        {
-            int[] oneDimensionalArray = new int[aNumbers.GetLength(0) * aNumbers.GetLength(1)];
-            int zerothDimensionCount = aNumbers.GetLength(0);
-            int firstDimensionCount = aNumbers.GetLength(1);
-
-            for (int i = 0; i < zerothDimensionCount; i++)
-            {
-                for (int j = 0; j < firstDimensionCount; j++)
-                {
-                    oneDimensionalArray[i * firstDimensionCount + j] = aNumbers[i, j];
-                }
-            }
-
-            int numberOfInversions = 0;
-
-            for (int i = 0; i < oneDimensionalArray.Length - 1; i++)
-            {
-                for (int j = i + 1; j < oneDimensionalArray.Length; j++)
-                {
-                    if (oneDimensionalArray[i] > oneDimensionalArray[j] && oneDimensionalArray[j] != 0)
-                    {
-                        numberOfInversions++;
-                    }
-                }
-            }
-            int row = 0;
-
-            for (int i = 0; i < zerothDimensionCount; i++)
-            {
-                for (int j = 0; j < firstDimensionCount; j++)
-                {
-                    if (aNumbers[i, j] == 0)
-                    {
-                        row = i;
-                    }
-                }
-            }
-
-            row = zerothDimensionCount - row;
-
-            if (zerothDimensionCount % 2 == 1 && numberOfInversions % 2 == 0)
-            {
-                return true;
-            }
-
-            if (zerothDimensionCount % 2 == 0)
-            {
-                if ((row % 2 == 0 && numberOfInversions % 2 == 1) || (row % 2 == 1 && numberOfInversions % 2 == 0))
-                {
-                    return true;
-                }
-                return false;
-            }
-
-            return false;
-        }
-
         private static void Main(string[] args)
         {
             if (args.Length != 5)
