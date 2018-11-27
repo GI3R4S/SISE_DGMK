@@ -37,6 +37,7 @@ namespace SISE_ZAD1
                 {
                     isDone = true;
                     iDecisions = currentState.iDecisions.Substring(1, currentState.iDecisions.Length - 1);
+                    timer.Stop();
                     break;
                 }
                 else
@@ -64,7 +65,7 @@ namespace SISE_ZAD1
 
             iProcessedStates = closed.Count;
             iVisitedStates = closed.Count + opened.Count;
-            timer.Stop();
+            
 
             iComputingTime = Math.Round((1000.0 * timer.ElapsedTicks / Stopwatch.Frequency), 3);
         }

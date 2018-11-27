@@ -24,55 +24,47 @@ namespace SISE_ZAD1
         public override void Solve()
         {
             State initialState = iState;
-            HashSet<State> opened = new HashSet<State>();
+            Queue<State> opened = new Queue<State>();
             HashSet<State> closed = new HashSet<State>();
 
-            Stopwatch timer = new Stopwatch();
-            timer.Start();
-            opened.Add(initialState);
+            
+            
+            opened.Enqueue(initialState);
             bool isDone = false;
             int iteration = 1;
 
+            Stopwatch timer = new Stopwatch();
+            timer.Start();
             do
             {
-                List<State> currentLevel = new List<State>();
-                currentLevel = opened.Where(p => p.iCurrentDepth == iteration).ToList();
-
-                for (int h = 0; h < 4; h++)
+                State currentState = opened.Dequeue();
+                closed.Add(currentState);
+                if (currentState.GetNumberOfIncorrect() == 0)
                 {
-                    List<State> currentState = currentLevel.Where(p => p.GetLastLetter == iOrder[h]).ToList();
-                    for (int i = 0; i < currentState.Count; i++)
+                    iRecursionDepth = currentState.iCurrentDepth;
+                    isDone = true;
+                    iDecisions = currentState.iDecisions.Substring(1, currentState.iDecisions.Length - 1);
+                    timer.Stop();
+                    break;
+                }
+                else
+                {
+                    for(int i = 0; i < 4; i++)
                     {
-                        if (currentState[i].GetNumberOfIncorrect() == 0)
+                        State optionalState = currentState.GetOptionalState(iOrder[i]);
+                        if(optionalState != null && !closed.Contains(optionalState))
                         {
-                            iDecisions = currentState[i].iDecisions.Substring(1, currentState[i].iDecisions.Length - 1);
-                            isDone = true;
-                            break;
-                        }
-                        else
-                        {
-                            closed.Add(currentState[i]);
-                            opened.Remove(currentState[i]);
-                        }
-                        for (int j = 0; j < 4; j++)
-                        {
-                            State temporaryState = currentState[i].GetOptionalState(iOrder[j]);
-                            if (temporaryState != null && !closed.Contains(temporaryState))
-                            {
-                                opened.Add(temporaryState);
-                            }
+                            opened.Enqueue(optionalState);
                         }
                     }
                 }
+
                 iteration++;
             } while (!isDone);
 
-
-            iRecursionDepth = opened.Max(p => p.iCurrentDepth) > closed.Max(p => p.iCurrentDepth) ? opened.Max(p => p.iCurrentDepth) : closed.Max(p => p.iCurrentDepth);
-
             iProcessedStates = closed.Count;
             iVisitedStates = closed.Count + opened.Count;
-            timer.Stop();
+            
             
             iComputingTime = Math.Round((1000.0 * timer.ElapsedTicks / Stopwatch.Frequency), 3);
         }

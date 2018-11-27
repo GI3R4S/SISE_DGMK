@@ -7,12 +7,29 @@ namespace SISE_ZAD1
 {
     internal class AStarSolver : Solver
     {
+        private delegate State SortOpened(ref HashSet<State> aOpened);
+
+        private SortOpened sortingMethod;
         public string iHeurestic;
+
+        public static State SortByHamming(ref HashSet<State> opened)
+        {
+            return opened.OrderBy(p => p.HammingHeurestic).First();
+        }
+
+        public static State SortByManhattan(ref HashSet<State> opened)
+        {
+            return opened.OrderBy(p => p.ManhattanHeurestic).First();
+        }
+        public static State SortByMixed(ref HashSet<State> opened)
+        {
+            return opened.OrderBy(p => p.MixedHeurestic).First();
+        }
 
         public AStarSolver(State aState, string aHeurestic)
         {
             iState = aState;
-            iHeurestic = aHeurestic;
+            iHeurestic = aHeurestic.ToLower();
         }
 
         public override void Solve()
@@ -21,35 +38,41 @@ namespace SISE_ZAD1
             HashSet<State> opened = new HashSet<State>();
             HashSet<State> closed = new HashSet<State>();
 
-            Stopwatch timer = new Stopwatch();
-            timer.Start();
+
+
+
+            if (iHeurestic == "hamm")
+            {
+                sortingMethod = SortByHamming;
+            }
+
+            else if (iHeurestic == "manh")
+            {
+                sortingMethod = SortByManhattan;
+            }
+
+            else if (iHeurestic == "manhlc")
+            {
+                sortingMethod = SortByMixed;
+            }
+
 
             opened.Add(initialState);
             bool isDone = false;
+            Stopwatch timer = new Stopwatch();
 
+
+            timer.Start();
             do
             {
-                State currentState = null;
+                State currentState = sortingMethod(ref opened);
 
-                if (iHeurestic == "hamm")
-                {
-                    currentState = opened.OrderBy(p => p.HammingHeurestic).First();
-                }
-
-                else if (iHeurestic == "manh")
-                {
-                    currentState = opened.OrderBy(p => p.ManhattanLinearConflictHeurestic).First();
-                }
-
-                else if (iHeurestic == "manhlc")
-                {
-                    currentState = opened.OrderBy(p => p.ManhattanLinearConflictHeurestic).First();
-                }
 
                 if (currentState.GetNumberOfIncorrect() == 0)
                 {
                     iDecisions = currentState.iDecisions.Substring(1, currentState.iDecisions.Length - 1);
                     isDone = true;
+                    timer.Stop();
                     break;
                 }
                 else
@@ -73,7 +96,7 @@ namespace SISE_ZAD1
 
             iProcessedStates = closed.Count;
             iVisitedStates = closed.Count + opened.Count;
-            timer.Stop();
+
 
             iComputingTime = Math.Round((1000.0 * timer.ElapsedTicks / Stopwatch.Frequency), 3);
         }

@@ -120,6 +120,14 @@ namespace SISE_ZAD1
             }
         }
 
+        public int MixedHeurestic
+        {
+            get
+            {
+                return HammingHeurestic > ManhattanHeurestic ? HammingHeurestic : ManhattanHeurestic;
+            }
+        }
+
         int[,] TargetBoard;
 
         public State(int[,] aBoard, string aPreviousDecisions, int aNewDepth)
